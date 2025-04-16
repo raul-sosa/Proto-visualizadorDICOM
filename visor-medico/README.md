@@ -12,7 +12,7 @@ Este proyecto es un visualizador de imágenes DICOM que utiliza React, TypeScrip
 
 1. Clonar el repositorio:
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/raul-sosa/Proto-visualizadorDICOM.git
 cd visor-medico
 ```
 
