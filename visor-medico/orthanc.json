@@ -1,0 +1,35 @@
+{
+  "Name": "Orthanc",
+  "HttpServerEnabled": true,
+  "HttpPort": 8042,
+  "RemoteAccessAllowed": true,
+  "AuthenticationEnabled": false,
+  "DicomServerEnabled": true,
+  "DicomModalities": {},
+  "DicomModalitiesInDatabase": true,
+  "DicomWeb": {
+    "Enable": true,
+    "Root": "/dicom-web/",
+    "EnableWado": true,
+    "WadoRoot": "/wado"
+  },
+  "CorsEnabled": true,
+  "HttpHeaders": {
+    "Access-Control-Allow-Origin": "http://localhost:5174",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, X-Requested-With",
+    "Access-Control-Allow-Credentials": "true"
+  },
+  "RegisteredUsers": {},
+  "StorageDirectory": "/var/lib/orthanc/db",
+  "StorageCompression": false,
+  "LimitFindResults": 0,
+  "LimitFindInstances": 0,
+  "LogLevel": "Info",
+  "SslEnabled": false,
+  "SslCertificate": "certificate.pem",
+  "WebDavEnabled": true,
+  "WebDavRealm": "Orthanc",
+  "WebDavStorageArea": "/var/lib/orthanc/webdav",
+  "WebDavUploadDirectory": "/tmp/orthanc-webdav"
+}
