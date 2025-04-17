@@ -1,7 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Open+Sans:wght@400;600&display=swap');
+
 :root {
-  font-family: var(--font-family);
+  font-family: 'Open Sans', Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  /* Colores por defecto de PrimeReact (azules y grises) */
+  --primary-color: #2196f3;
+  --primary-100: #bbdefb;
+  --primary-200: #90caf9;
+  --primary-300: #42a5f5;
+  --primary-400: #1565c0;
+  --surface-ground: #f4f4f5;
+  --surface-0: #fff;
+  --card-shadow: 0 2px 8px 0 rgba(33, 150, 243, 0.08);
+  --text-color: #222;
+  --text-color-secondary: #607d8b;
+  --button-bg: var(--primary-color);
+  --button-bg-hover: var(--primary-300);
+  --button-text: #fff;
 }
 
 body {
@@ -10,12 +26,13 @@ body {
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #fff;
+  color: var(--text-color);
 }
 
 /* Custom Layout Classes */
 .layout-wrapper {
   min-height: 100vh;
-  background: var(--surface-ground);
 }
 
 .layout-content {
@@ -25,9 +42,23 @@ body {
 }
 
 .header {
-  background: var(--surface-0);
+  background: #fff !important;
+  box-shadow: var(--card-shadow) !important;
+  padding: 1.5rem 1rem 1rem 1rem !important;
+  border-radius: 1rem 1rem 0 0 !important;
+  border-bottom: 4px solid var(--primary-200) !important;
+  position: relative;
+  z-index: 2;
+}
+
+.main-section {
+  background: #fff;
+  border-radius: 0 0 1rem 1rem;
   box-shadow: var(--card-shadow);
-  padding: 1rem;
+  margin-bottom: 2rem;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .content-section {
@@ -35,10 +66,22 @@ body {
 }
 
 .card-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  margin: 1rem 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: var(--card-shadow);
+  padding: 2rem 1.5rem;
+  transition: box-shadow 0.2s;
+  border: 1px solid #e0e0e0;
+}
+.card:hover {
+  box-shadow: 0 4px 16px 0 rgba(33, 150, 243, 0.15);
 }
 
 .text-center {
@@ -63,6 +106,73 @@ body {
 
 .gap-2 {
   gap: 0.5rem;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Montserrat', Arial, sans-serif;
+  color: var(--primary-400);
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.text-secondary {
+  color: var(--text-color-secondary);
+}
+
+.p-button, .p-button-text, .p-button-outlined {
+  background: var(--button-bg) !important;
+  color: var(--button-text) !important;
+  border: none !important;
+  border-radius: 2rem !important;
+  transition: background 0.2s;
+  font-weight: 700;
+  font-family: 'Montserrat', Arial, sans-serif;
+  box-shadow: 0 2px 8px 0 rgba(33, 150, 243, 0.08);
+  letter-spacing: 0.5px;
+}
+.p-button:hover, .p-button-text:hover, .p-button-outlined:hover {
+  background: var(--button-bg-hover) !important;
+}
+
+.p-button-outlined {
+  background: transparent !important;
+  color: var(--primary-color) !important;
+  border: 2px solid var(--primary-color) !important;
+}
+.p-button-outlined:hover {
+  background: var(--primary-100) !important;
+}
+
+.p-card {
+  box-shadow: var(--card-shadow) !important;
+  border-radius: 1rem !important;
+  border: none !important;
+}
+
+.p-card .p-card-content {
+  padding: 0 !important;
+}
+
+.p-card .p-card-body {
+  padding: 1.5rem !important;
+}
+
+.footer {
+  background: var(--primary-400) !important;
+  color: #fff !important;
+  padding: 2rem 0 1rem 0 !important;
+  margin-top: 0;
+  border-radius: 0 0 1rem 1rem;
+  box-shadow: 0 -2px 8px 0 rgba(33, 150, 243, 0.08);
+  font-size: 1rem;
+}
+.footer h4 {
+  color: #fff !important;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+}
+.footer .text-secondary, .footer ul {
+  color: #e0f2f1 !important;
 }
 
 .mb-4 {
@@ -93,13 +203,49 @@ body {
   font-size: 1.875rem;
 }
 
-.text-secondary {
-  color: var(--text-color-secondary);
+/* Corrección de conflictos de fondo para páginas especiales */
+.login-page-bg {
+  min-height: 100vh;
+  min-width: 100vw;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/fondo-login.png') !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
 }
 
-.footer {
-  background: var(--surface-900);
-  color: var(--surface-0);
-  padding: 2rem 0;
-  margin-top: 3rem;
+/* Si necesitas otros fondos personalizados para otras páginas, usa el mismo patrón de clase */
+
+/* Ajuste para que .layout-wrapper no fuerce el fondo blanco si tiene una clase especial */
+.layout-wrapper:not(.login-page-bg) {
+  background: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .card-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .main-section {
+    padding: 1rem 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .layout-content {
+    padding: 0.5rem;
+  }
+  .card {
+    padding: 1rem 0.5rem;
+  }
+  .header {
+    padding: 0.5rem;
+  }
+}
+
+img {
+  filter: none;
 }
