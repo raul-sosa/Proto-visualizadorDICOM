@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
@@ -136,6 +137,7 @@ const Login: React.FC<LoginProps> = ({
 };
 
 const LoginPage: React.FC = () => {
+  const { setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [loggedIn, setLoggedIn] = useState(false);
@@ -161,33 +163,82 @@ const LoginPage: React.FC = () => {
   }, []);
 
   if (loggedIn) {
-    setTimeout(() => navigate(from), 100);
+    setTimeout(() => navigate('/'), 100);
     return null;
   }
 
   // Handlers
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (username && password) {
-      setLoggedIn(true);
-    } else {
+    if (!username || !password) {
       setError('Por favor ingresa usuario y contraseña');
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: username, 
+          password :password })
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        setError(err.message || 'Error al iniciar sesión');
+        return;
+      }
+      const data = await response.json();
+      // Si no hay nombre, considerar que el login falló
+      if (!data.name) {
+        setError('Usuario o contraseña incorrectos');
+        return;
+      }
+      setUser({ id: data.id, name: data.name, email: data.email });
+      setLoggedIn(true);
+    } catch (err) {
+      setError('Error de red o del servidor');
     }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegisterError('');
     if (!registerUser || !registerPass || !registerPass2) {
       setRegisterError('Completa todos los campos');
-    } else if (registerPass !== registerPass2) {
+      return;
+    }
+    if (registerPass !== registerPass2) {
       setRegisterError('Las contraseñas no coinciden');
-    } else {
-      alert('Usuario registrado (simulado)');
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: registerUser, 
+          password: registerPass })
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        console.log('Error al registrar usuario:', err);
+        setRegisterError(err.error || err.message || 'Error al registrar usuario');
+        return;
+      }
+      const data = await response.json();
+      // Si no hay email, considerar que el registro falló
+      if (!data.email) {
+        setRegisterError('No se pudo registrar el usuario');
+        return;
+      }
+      setUser({ id: data.id, name: data.name || data.email, email: data.email });
+      setLoggedIn(true);
       setRegisterUser('');
       setRegisterPass('');
       setRegisterPass2('');
+    } catch (err) {
+      setRegisterError('Error de red o del servidor');
     }
   };
 

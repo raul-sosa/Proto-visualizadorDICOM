@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
+import { useAuth } from '../context/AuthContext';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const [loggedUser, setLoggedUser] = useState<string|null>(null);
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="header" style={{ width: '100vw', left: 0, top: 0, position: 'relative', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', zIndex: 100 }}>
@@ -22,13 +27,22 @@ const Header: React.FC = () => {
               <p className="text-secondary m-0" style={{ fontSize: 18 }}>Visor de imágenes médicas</p>
             </div>
           </div>
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Button
-              label={loggedUser ? `Hola, ${loggedUser}` : "Iniciar sesión"}
+              label={user ? user.email : "Iniciar sesión"}
               icon="pi pi-user"
               className="p-button-outlined p-button-rounded"
-              onClick={() => navigate('/login')}
+              onClick={() => user ? null : navigate('/login')}
             />
+            {user && (
+              <Button
+                label="Cerrar sesión"
+                icon="pi pi-sign-out"
+                className="p-button-text p-button-sm"
+                onClick={handleLogout}
+                style={{ marginLeft: 8 }}
+              />
+            )}
           </div>
         </div>
       </div>
