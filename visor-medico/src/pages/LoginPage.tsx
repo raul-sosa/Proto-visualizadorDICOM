@@ -163,7 +163,7 @@ const LoginPage: React.FC = () => {
   }, []);
 
   if (loggedIn) {
-    setTimeout(() => navigate('/'), 100);
+    setTimeout(() => navigate(from, { replace: true }), 100);
     return null;
   }
 
