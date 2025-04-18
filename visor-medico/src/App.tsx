@@ -6,7 +6,6 @@ import LoginPage from './pages/LoginPage';
 import React from 'react';
 
 export default function App() {
-  // Ya no hay login global
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
