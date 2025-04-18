@@ -10,11 +10,14 @@ import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/viewer" element={<ViewerPage />} />
-      <Route path="/prueba" element={<VisualizadorPrueba />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/viewer" element={<ViewerPage />} />
+        <Route path="/prueba" element={<VisualizadorPrueba />} />
+        <Route path="/medico" element={<MedicoPage />} />
+      </Routes>
+    </AuthProvider>
   );
 }
