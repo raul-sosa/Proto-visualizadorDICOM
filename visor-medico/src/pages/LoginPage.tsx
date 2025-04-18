@@ -10,6 +10,7 @@ const facebookLogo = 'https://upload.wikimedia.org/wikipedia/commons/0/05/Facebo
 const microsoftLogo = 'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg';
 
 const LoginPage: React.FC = () => {
+  const { setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUsername] = useState<string>('');
