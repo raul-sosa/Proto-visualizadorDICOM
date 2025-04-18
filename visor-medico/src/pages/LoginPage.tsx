@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
@@ -11,6 +11,7 @@ const microsoftLogo = 'https://upload.wikimedia.org/wikipedia/commons/4/44/Micro
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [registerUser, setRegisterUser] = useState<string>('');
@@ -43,10 +44,13 @@ const LoginPage: React.FC = () => {
     transition: 'box-shadow 0.2s',
   };
 
+  // Redirección inteligente después de login/registro
+  const from = location.state?.from || '/';
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    navigate('/viewer');
+    navigate(from, { replace: true });
   };
 
   const handleRegister = (e: React.FormEvent) => {
@@ -57,7 +61,7 @@ const LoginPage: React.FC = () => {
     } else if (registerPass !== registerPass2) {
       setRegisterError('Las contraseñas no coinciden');
     } else {
-      navigate('/viewer');
+      navigate(from, { replace: true });
     }
   };
 

@@ -11,7 +11,7 @@ Este proyecto es un visualizador DICOM simple usando React y Orthanc vía Docker
 
 1. **Clona el repositorio**
    ```bash
-   git clone <url-del-repo>
+   git clone https://github.com/raul-sosa/Proto-visualizadorDICOM.git
    cd visor-medico
    ```
 
