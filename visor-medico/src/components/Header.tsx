@@ -28,6 +28,22 @@ const Header: React.FC = () => {
             </div>
           </div>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* Botón para ir a la página anterior */}
+            <Button
+              icon="pi pi-arrow-left"
+              className="p-button-text p-button-rounded p-button-secondary"
+              style={{ marginRight: 8 }}
+              title="Regresar"
+              onClick={() => navigate(-1)}
+            />
+            {/* Acceso a la página de médicos */}
+            <Button
+              label="Panel Médico"
+              icon="pi pi-briefcase"
+              className="p-button-outlined p-button-rounded"
+              style={{ marginRight: 8 }}
+              onClick={() => navigate('/medico')}
+            />
             <Button
               label={user ? user.email : "Iniciar sesión"}
               icon="pi pi-user"

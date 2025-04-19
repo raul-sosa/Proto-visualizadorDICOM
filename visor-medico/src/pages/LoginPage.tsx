@@ -83,78 +83,99 @@ const LoginPage: React.FC = () => {
       width: '100vw',
       background: `url('/fondo-login.png') center center / cover no-repeat fixed`,
       display: 'flex',
-      alignItems: 'center',
+      flexDirection: 'row',
       justifyContent: 'center',
-      overflow: 'auto'
+      alignItems: 'center',
+      overflow: 'auto',
+      position: 'relative'
     }}>
-      <div style={{
-        width: '100%',
-        maxWidth: 900,
-        background: 'rgba(255,255,255,0.60)',
-        borderRadius: 18,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-        padding: 'clamp(32px, 6vw, 32px)',
-        display: 'flex',
-        flexDirection: 'row',
-        gap: 32,
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        minHeight: 400,
-        backdropFilter: 'blur(6px)'
-      }}>
-        {/* Columna Iniciar Sesión */}
-        <div style={{ flex: 1, minWidth: 260, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <h2 style={{ fontSize: 21, fontWeight: 900, letterSpacing: -1, textAlign: 'center', marginBottom: 18 }}>Iniciar Sesión</h2>
-          <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-            <div className="mb-2">
-              <label htmlFor="username" className="block mb-1">Usuario</label>
-              <InputText id="username" value={username} onChange={e => setUsername(e.target.value)} autoFocus className="w-full" />
+      {/* Botón X para regresar, esquina superior derecha */}
+      <div style={{ position: 'fixed', top: 38, right: 38, zIndex: 10 }}>
+        <Button
+          icon="pi pi-times"
+          className="p-button-text p-button-rounded p-button-danger"
+          style={{ fontSize: 24, width: 48, height: 48 }}
+          onClick={() => navigate(-1)}
+          title="Regresar"
+        />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          background: 'rgba(255,255,255,0.60)',
+          borderRadius: 18,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+          padding: 'clamp(48px, 8vw, 56px)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0,
+          alignItems: 'stretch',
+          justifyContent: 'center',
+          minHeight: 540,
+          backdropFilter: 'blur(6px)'
+        }}>
+          {/* Sección superior: columnas login y registro */}
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 32, alignItems: 'stretch', justifyContent: 'center', width: '100%' }}>
+            {/* Columna Iniciar Sesión */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24, flex: 1, minWidth: 0 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 900, letterSpacing: -1, textAlign: 'center', marginBottom: 18 }}>Iniciar Sesión</h2>
+              <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+                <div className="mb-2">
+                  <label htmlFor="username" className="block mb-1">Correo electrónico</label>
+                  <InputText id="username" value={username} onChange={e => setUsername(e.target.value)} autoComplete="username" className="w-full" placeholder="Correo electrónico" style={{ fontSize: 18, height: 44 }} />
+                </div>
+                <div className="mb-2">
+                  <label htmlFor="password" className="block mb-1">Contraseña</label>
+                  <Password id="password" value={password} onChange={e => setPassword(e.target.value)} feedback={false} toggleMask className="w-full" placeholder="Contraseña" inputStyle={{ fontSize: 18, height: 44 }} />
+                </div>
+                {error && <Message severity="error" text={error} style={{ marginBottom: 8 }} />}
+                <Button type="submit" label="Entrar" icon="pi pi-sign-in" iconPos="left" style={{ ...mainButtonStyle, width: '140px', minWidth: 0, padding: '0.6rem 0.7rem', fontSize: 17, margin: '18px auto 0 auto', display: 'block', justifyContent: 'center' }} />
+              </form>
+              <div style={{ textAlign: 'right', marginBottom: 10 }}>
+                <a href="#" style={{ color: '#1976d2', fontSize: 15, textDecoration: 'underline', cursor: 'pointer' }} onClick={e => { e.preventDefault(); alert('Función para recuperar contraseña en desarrollo.'); }}>¿Olvidaste tu contraseña?</a>
+              </div>
             </div>
-            <div className="mb-2">
-              <label htmlFor="password" className="block mb-1">Contraseña</label>
-              <Password id="password" value={password} onChange={e => setPassword(e.target.value)} feedback={false} className="w-full" toggleMask />
+            {/* Línea divisoria vertical */}
+            <div style={{ width: 1, background: '#e0e0e0', margin: '0 16px', minHeight: 320, alignSelf: 'center' }} />
+            {/* Columna Crear Cuenta */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24, flex: 1, minWidth: 0 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 900, letterSpacing: -1, textAlign: 'center', marginBottom: 18 }}>Crear Cuenta</h2>
+              <form onSubmit={handleRegister} style={{ width: '100%', maxWidth: 320, margin: '0 auto' }}>
+                <div className="mb-2">
+                  <label htmlFor="registerUser" className="block mb-1">Correo electrónico</label>
+                  <InputText id="registerUser" value={registerUser} onChange={e => setRegisterUser(e.target.value)} autoComplete="username" className="w-full" placeholder="Correo electrónico" style={{ fontSize: 18, height: 44 }} />
+                </div>
+                <div className="mb-2">
+                  <label htmlFor="registerPass" className="block mb-1">Contraseña</label>
+                  <Password id="registerPass" value={registerPass} onChange={e => setRegisterPass(e.target.value)} feedback={false} toggleMask className="w-full" placeholder="Contraseña" inputStyle={{ fontSize: 18, height: 44 }} />
+                </div>
+                <div className="mb-2">
+                  <label htmlFor="registerPass2" className="block mb-1">Repetir Contraseña</label>
+                  <Password id="registerPass2" value={registerPass2} onChange={e => setRegisterPass2(e.target.value)} feedback={false} toggleMask className="w-full" placeholder="Repetir contraseña" inputStyle={{ fontSize: 18, height: 44 }} />
+                </div>
+                {registerError && <Message severity="error" text={registerError} style={{ marginBottom: 8 }} />}
+                <Button type="submit" label="Crear" icon="pi pi-user-plus" iconPos="left" style={{ ...mainButtonStyle, width: '140px', minWidth: 0, padding: '0.6rem 0.7rem', fontSize: 17, margin: '14px auto 0 auto', display: 'block', justifyContent: 'center' }} />
+              </form>
             </div>
-            <div style={{ width: '100%', marginBottom: 7 }}>
-              <Button label="Entrar" icon="pi pi-sign-in" className="w-full" type="submit" style={mainButtonStyle} iconPos="left" />
-            </div>
-            <div style={{ textAlign: 'right', marginBottom: 10 }}>
-              <a href="#" style={{ color: '#1976d2', fontSize: 14, textDecoration: 'underline', cursor: 'pointer' }} onClick={e => { e.preventDefault(); alert('Función para recuperar contraseña en desarrollo.'); }}>¿Olvidaste tu contraseña?</a>
-            </div>
-            {error && <div className="mt-2"><Message severity="error" text={error} /></div>}
-          </form>
-          <div style={{ width: '100%', margin: '7px 0 0 0', display: 'flex', flexDirection: 'row', gap: 12, justifyContent: 'center', alignItems: 'center' }}>
-            <button type="button" title="Google" style={socialBtnStyle} onClick={handleGoogleLogin}>
-              <img src={googleLogo} alt="Google" style={{ width: 22, height: 22, display: 'block' }} />
-            </button>
-            <button type="button" title="Facebook" style={socialBtnStyle} onClick={handleFacebookLogin}>
-              <img src={facebookLogo} alt="Facebook" style={{ width: 22, height: 22, display: 'block' }} />
-            </button>
-            <button type="button" title="Microsoft" style={socialBtnStyle} onClick={handleMicrosoftLogin}>
-              <img src={microsoftLogo} alt="Microsoft" style={{ width: 22, height: 22, display: 'block' }} />
-            </button>
           </div>
-        </div>
-        {/* Columna Registro */}
-        <div style={{ flex: 1, minWidth: 260, display: 'flex', flexDirection: 'column', justifyContent: 'center', borderLeft: '1px solid #e0e0e0', paddingLeft: 32 }}>
-          <h2 style={{ fontSize: 21, fontWeight: 900, letterSpacing: -1, textAlign: 'center', marginBottom: 18 }}>Crear Cuenta</h2>
-          <form onSubmit={handleRegister} style={{ width: '100%', maxWidth: 320, margin: '0 auto' }}>
-            <div className="mb-2">
-              <label htmlFor="registerUser" className="block mb-1">Usuario</label>
-              <InputText id="registerUser" value={registerUser} onChange={e => setRegisterUser(e.target.value)} className="w-full" />
+          {/* Sección inferior: social login */}
+          <div style={{ width: '100%', marginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ textAlign: 'center', color: '#888', fontSize: 16, marginBottom: 14 }}>
+              <span>o inicia sesión con:</span>
             </div>
-            <div className="mb-2">
-              <label htmlFor="registerPass" className="block mb-1">Contraseña</label>
-              <Password id="registerPass" value={registerPass} onChange={e => setRegisterPass(e.target.value)} feedback={false} className="w-full" toggleMask />
+            <div style={{ display: 'flex', flexDirection: 'row', gap: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 0 }}>
+              <button type="button" title="Google" style={{ ...socialBtnStyle, width: 64, height: 64 }} onClick={handleGoogleLogin}>
+                <img src={googleLogo} alt="Google" style={{ width: 38, height: 38, display: 'block' }} />
+              </button>
+              <button type="button" title="Facebook" style={{ ...socialBtnStyle, width: 64, height: 64 }} onClick={handleFacebookLogin}>
+                <img src={facebookLogo} alt="Facebook" style={{ width: 38, height: 38, display: 'block' }} />
+              </button>
+              <button type="button" title="Microsoft" style={{ ...socialBtnStyle, width: 64, height: 64 }} onClick={handleMicrosoftLogin}>
+                <img src={microsoftLogo} alt="Microsoft" style={{ width: 38, height: 38, display: 'block' }} />
+              </button>
             </div>
-            <div className="mb-2">
-              <label htmlFor="registerPass2" className="block mb-1">Repetir Contraseña</label>
-              <Password id="registerPass2" value={registerPass2} onChange={e => setRegisterPass2(e.target.value)} feedback={false} className="w-full" toggleMask />
-            </div>
-            <div style={{ width: '100%', marginBottom: 7 }}>
-              <Button label="Crear Cuenta" icon="pi pi-user-plus" className="w-full" type="submit" style={mainButtonStyle} iconPos="left" />
-            </div>
-            {registerError && <div className="mt-2"><Message severity="error" text={registerError} /></div>}
-          </form>
+          </div>
         </div>
       </div>
     </div>
