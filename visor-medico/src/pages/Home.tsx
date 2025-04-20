@@ -7,10 +7,26 @@ import Footer from '../components/Footer';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [session, setSession] = React.useState<{ email: string | null, token: string | null }>({
+    email: typeof window !== 'undefined' ? localStorage.getItem('user_email') : null,
+    token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_email');
+    setSession({ email: null, token: null });
+  };
 
   return (
     <div className="layout-wrapper">
       <Header />
+      {session.token && (
+        <div style={{ background: '#e8f5e9', padding: '14px 0', textAlign: 'center', color: '#388e3c', fontSize: 17, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+          <span>Sesión iniciada, hola <b>{session.email}</b></span>
+          <Button label="Cerrar sesión" icon="pi pi-sign-out" className="p-button-danger" style={{ fontSize: 15 }} onClick={handleLogout} />
+        </div>
+      )}
       {/* Main Content */}
       <main className="layout-content main-section">
         {/* Welcome Section */}

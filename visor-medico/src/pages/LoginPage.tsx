@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
@@ -21,6 +22,11 @@ const LoginPage: React.FC = () => {
   const [registerPass2, setRegisterPass2] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [registerError, setRegisterError] = useState<string>('');
+  const [session, setSession] = useState<{ email: string | null, token: string | null }>({
+    email: localStorage.getItem('user_email'),
+    token: localStorage.getItem('token'),
+  });
+
 
   const mainButtonStyle: React.CSSProperties = {
     fontSize: 15,
@@ -52,30 +58,127 @@ const LoginPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    navigate(from, { replace: true });
+    // Lógica de login con endpoint
+    fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: username,
+        password: password,
+      }),
+    })
+      .then(async res => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || 'Error al iniciar sesión');
+        }
+        // Guardar token y email en localStorage
+        if (data.data && data.data.token && data.data.user && data.data.user.email) {
+          localStorage.setItem('token', data.data.token);
+          localStorage.setItem('user_email', data.data.user.email);
+          setSession({ token: data.data.token, email: data.data.user.email });
+        }
+        setError('');
+        await Swal.fire({
+          icon: 'success',
+          title: 'Inicio de sesión exitoso',
+          showConfirmButton: false,
+          timer: 1300
+        });
+        navigate(from, { replace: true });
+      })
+      .catch(err => {
+        setError(err.message || 'Error al iniciar sesión');
+      });
   };
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     setRegisterError('');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!registerUser || !registerPass || !registerPass2) {
       setRegisterError('Completa todos los campos');
+    } else if (!emailRegex.test(registerUser)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Correo inválido',
+        text: 'Por favor, ingresa un correo electrónico válido.',
+        confirmButtonColor: '#d33'
+      });
+      return;
     } else if (registerPass !== registerPass2) {
       setRegisterError('Las contraseñas no coinciden');
     } else {
-      navigate(from, { replace: true });
+      // Lógica de registro con endpoint
+      fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: registerUser,
+          password: registerPass,
+        }),
+      })
+        .then(async res => {
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            if (res.status === 400) {
+              await Swal.fire({
+                icon: 'error',
+                title: 'Usuario ya registrado',
+                text: data.message || 'El correo electrónico ya está registrado.',
+                confirmButtonColor: '#d33'
+              });
+            }
+            throw new Error(data.message || 'Error al registrar usuario');
+          }
+          // Registro exitoso, puedes redirigir o mostrar mensaje
+          setRegisterError('');
+          await Swal.fire({
+            icon: 'success',
+            title: 'Registro exitoso',
+            text: 'Tu cuenta ha sido creada correctamente.',
+            confirmButtonColor: '#3085d6',
+            timer: 1600,
+            showConfirmButton: false
+          });
+          // Ya no redirige automáticamente al home tras registrar
+
+        })
+        .catch(err => {
+          setRegisterError(err.message || 'Error al registrar usuario');
+        });
     }
   };
 
   const handleGoogleLogin = () => {
-    alert('Función de login con Google en desarrollo.');
+    Swal.fire({
+      icon: 'info',
+      title: 'Próximamente',
+      text: 'Función de login con Google en desarrollo.',
+      confirmButtonColor: '#3085d6'
+    });
   };
   const handleFacebookLogin = () => {
-    alert('Función de login con Facebook en desarrollo.');
+    Swal.fire({
+      icon: 'info',
+      title: 'Próximamente',
+      text: 'Función de login con Facebook en desarrollo.',
+      confirmButtonColor: '#3085d6'
+    });
   };
   const handleMicrosoftLogin = () => {
-    alert('Función de login con Microsoft en desarrollo.');
+    Swal.fire({
+      icon: 'info',
+      title: 'Próximamente',
+      text: 'Función de login con Microsoft en desarrollo.',
+      confirmButtonColor: '#3085d6'
+    });
   };
+
 
   return (
     <div style={{
@@ -130,7 +233,36 @@ const LoginPage: React.FC = () => {
                   <Password id="password" value={password} onChange={e => setPassword(e.target.value)} feedback={false} toggleMask className="w-full" placeholder="Contraseña" inputStyle={{ fontSize: 18, height: 44 }} />
                 </div>
                 {error && <Message severity="error" text={error} style={{ marginBottom: 8 }} />}
-                <Button type="submit" label="Entrar" icon="pi pi-sign-in" iconPos="left" style={{ ...mainButtonStyle, width: '140px', minWidth: 0, padding: '0.6rem 0.7rem', fontSize: 17, margin: '18px auto 0 auto', display: 'block', justifyContent: 'center' }} />
+                {session.token ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontWeight: 500, color: '#388e3c', fontSize: 16 }}>
+                      Sesión iniciada, hola {session.email}
+                    </span>
+                    <Button
+                      label="Cerrar sesión"
+                      icon="pi pi-sign-out"
+                      className="p-button-danger"
+                      style={{ ...mainButtonStyle, width: '140px', minWidth: 0, padding: '0.6rem 0.7rem', fontSize: 17 }}
+                      onClick={async () => {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user_email');
+                        setSession({ token: null, email: null });
+                        setUsername('');
+                        setPassword('');
+                        setError('');
+                        await Swal.fire({
+                          icon: 'info',
+                          title: 'Sesión cerrada',
+                          text: 'Has cerrado sesión correctamente.',
+                          timer: 1400,
+                          showConfirmButton: false
+                        });
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <Button type="submit" label="Entrar" icon="pi pi-sign-in" iconPos="left" style={{ ...mainButtonStyle, width: '140px', minWidth: 0, padding: '0.6rem 0.7rem', fontSize: 17, margin: '18px auto 0 auto', display: 'block', justifyContent: 'center' }} />
+                )}
               </form>
               <div style={{ textAlign: 'right', marginBottom: 10 }}>
                 <a href="#" style={{ color: '#1976d2', fontSize: 15, textDecoration: 'underline', cursor: 'pointer' }} onClick={e => { e.preventDefault(); alert('Función para recuperar contraseña en desarrollo.'); }}>¿Olvidaste tu contraseña?</a>
