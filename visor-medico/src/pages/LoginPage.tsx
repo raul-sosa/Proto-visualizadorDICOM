@@ -145,8 +145,8 @@ const LoginPage: React.FC = () => {
             timer: 1600,
             showConfirmButton: false
           });
-          // Ya no redirige automáticamente al home tras registrar
-
+          // Opcional: auto-login o redirección
+          navigate(from, { replace: true });
         })
         .catch(err => {
           setRegisterError(err.message || 'Error al registrar usuario');

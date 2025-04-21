@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@cornerstonejs/core": "^0.3.0",
-    "@cornerstonejs/dicom-image-loader": "^0.1.5",
-    "@cornerstonejs/tools": "^0.5.0",
+    "@cornerstonejs/core": "^3.10.27",
+    "@cornerstonejs/dicom-image-loader": "^3.10.27",
+    "@cornerstonejs/tools": "^3.10.27",
     "bootstrap": "^5.3.5",
     "classnames": "^2.5.1",
     "dicom-parser": "^1.8.21",
@@ -22,12 +22,11 @@
     "react-bootstrap": "^2.10.9",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
-    "sweetalert": "^2.1.2",
     "sweetalert2": "^11.6.13"
   },
   "devDependencies": {
     "@eslint/js": "^8.56.0",
-    "@types/react": "^18.2.48",
+    "@types/react": "^18.3.20",
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.56.0",
