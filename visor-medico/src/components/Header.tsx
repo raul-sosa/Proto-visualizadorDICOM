@@ -8,8 +8,13 @@ const Header: React.FC = () => {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
+    // Eliminar token y email del localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user_email');
+    }
     logout();
-    navigate('/login');
+    navigate('/'); // Redirige a la página principal
   };
 
   return (
@@ -44,19 +49,25 @@ const Header: React.FC = () => {
               style={{ marginRight: 8 }}
               onClick={() => navigate('/medico')}
             />
-            <Button
-              label={user ? user.email : "Iniciar sesión"}
-              icon="pi pi-user"
-              className="p-button-outlined p-button-rounded"
-              onClick={() => user ? null : navigate('/login')}
-            />
-            {user && (
+            {user ? (
+              <>
+                <span style={{ fontWeight: 500, fontSize: 16, color: '#388e3c', marginRight: 10 }}>Hola {user.email}</span>
+                <Button
+                  label="Cerrar sesión"
+                  icon="pi pi-sign-out"
+                  className="p-button-danger p-button-rounded"
+                  style={{ fontSize: 15 }}
+                  onClick={() => {
+                    handleLogout();
+                  }}
+                />
+              </>
+            ) : (
               <Button
-                label="Cerrar sesión"
-                icon="pi pi-sign-out"
-                className="p-button-text p-button-sm"
-                onClick={handleLogout}
-                style={{ marginLeft: 8 }}
+                label="Iniciar sesión"
+                icon="pi pi-user"
+                className="p-button-outlined p-button-rounded"
+                onClick={() => navigate('/login')}
               />
             )}
           </div>
