@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Footer from './Footer';
-import DicomViewer from './DicomViewer';
 import StudyList, { Study } from './StudyList';
+import Header from './Header';
 
 const studies: Study[] = [
   {
@@ -114,6 +114,7 @@ const VisualizadorPrueba: React.FC = () => {
 
   return (
     <div className="layout-wrapper">
+      <Header />
       <div className="layout-content" style={{ margin: '2rem auto', maxWidth: 1000 }}>
         <div className="card" style={{ padding: '2rem' }}>
           <h2 className="text-2xl m-0 mb-4">Lista de Estudios</h2>
@@ -142,7 +143,7 @@ const VisualizadorPrueba: React.FC = () => {
             </span>
           </div>
           <h2 className="text-2xl m-0 mb-4">Previsualización</h2>
-          {advanced ? (
+          {advanced && (
             <iframe
               src={ohifUrl(selectedStudyUID)}
               title="OHIF Viewer"
@@ -151,8 +152,6 @@ const VisualizadorPrueba: React.FC = () => {
               style={{ border: '1px solid #222', borderRadius: 8 }}
               allowFullScreen
             />
-          ) : (
-            <DicomViewer instanceId={selectedStudyUID} />
           )}
         </div>
       </div>
