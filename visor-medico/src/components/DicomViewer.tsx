@@ -10,12 +10,12 @@ import {
   addTool,
 } from "@cornerstonejs/tools";
 import { init as initLoader } from "@cornerstonejs/dicom-image-loader";
-import Header from './Header';
-import Footer from './Footer';
 
-const INSTANCE_ID = 'efebc324-9433a127-dadb8db9-d63025b2-81de68ff';
+interface DicomViewerProps {
+  instanceId: string;
+}
 
-export default function DicomViewer() {
+export default function DicomViewer({ instanceId }: DicomViewerProps) {
   const elementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,9 +75,9 @@ export default function DicomViewer() {
           toolGroup.addViewport(viewportId, renderingEngineId);
         }
 
-        // Cargar imagen de ejemplo
+        // Cargar imagen seleccionada
         const imageIds = [
-          `wadouri:http://localhost:8042/instances/${INSTANCE_ID}/file`
+          `wadouri:http://localhost:8042/instances/${instanceId}/file`
         ];
         await viewport.setStack(imageIds, 0);
         renderingEngine.render();
@@ -87,19 +87,11 @@ export default function DicomViewer() {
       }
     };
     initCornerstone();
-  }, []);
+  }, [instanceId]);
 
   return (
-    <div className="layout-wrapper">
-      <Header />
-      <div style={{ padding: '32px 0 0 0', textAlign: 'center', maxWidth: 900, margin: '0 auto' }}>
-        <h1 style={{ fontSize: 28, margin: '24px 0 10px 0', fontWeight: 900, letterSpacing: -1 }}>Visualizador DICOM</h1>
-        <p style={{ fontSize: 18, margin: '0 0 24px 0', color: '#555' }}>
-          Aquí puedes cargar y visualizar tus imágenes médicas.
-        </p>
-        <div ref={elementRef} style={{ width: 640, height: 480, margin: '0 auto', background: '#111', borderRadius: 8, border: '1px solid #222' }} />
-      </div>
-      <Footer />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div ref={elementRef} style={{ width: '100%', height: 480, background: '#111', borderRadius: 8, border: '1px solid #222' }} />
     </div>
   );
 }
