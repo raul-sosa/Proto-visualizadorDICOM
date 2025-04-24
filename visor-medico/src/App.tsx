@@ -4,7 +4,6 @@ import ViewerPage from "./pages/ViewerPage";
 import VisualizadorPrueba from "./components/VisualizadorPrueba";
 import LoginPage from './pages/LoginPage';
 import MedicoPage from "./pages/MedicoPage";
-import React from 'react';
 
 import { AuthProvider } from "./context/AuthContext";
 
