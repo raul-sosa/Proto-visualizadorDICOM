@@ -39,7 +39,7 @@ const Header: React.FC = () => {
               className="p-button-text p-button-rounded p-button-secondary"
               style={{ marginRight: 8 }}
               title="Regresar"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/')}
             />
             {/* Acceso a la página de médicos */}
             <Button
