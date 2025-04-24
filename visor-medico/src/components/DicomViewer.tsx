@@ -6,11 +6,24 @@ import { Slider } from 'primereact/slider';
 import Header from './Header';
 import Footer from './Footer';
 
-const INSTANCE_ID = 'efebc324-9433a127-dadb8db9-d63025b2-81de68ff';
+const INSTANCE_IDS = [
+  '13720173-43aede2f-13787402-9e669433-65f7640b',
+  'c38396bc-efb8a730-563bc4b0-416a5d87-65c03a7d',
+  'efebc324-9433a127-dadb8db9-d63025b2-81de68ff',
+  'da4a4cc9-aaa17620-4f3224a1-c26610c7-8e09f740',
+  '70f08b57-66947071-ea436bd3-aa4ff8e9-db5afa62',
+  '1d27f80f-9a2a24df-cbb31f02-509342f7-512b2d5a',
+  '71698035-d9a98911-27e30550-837869a4-1c033c43',
+  '1bf9d9f7-948e4d33-7ee7d072-23439a73-a2258297',
+  'd7df669f-d84efd1b-6873021f-a2091d97-1c405d10',
+];
 
-const LOCAL_COMMENTS_KEY = `comments_${INSTANCE_ID}`;
+const LOCAL_COMMENTS_KEY = `comments_${INSTANCE_IDS[0]}`;
 
 const VisualizadorSimple: React.FC = () => {
+  // Nuevo estado para la imagen seleccionada
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const INSTANCE_ID = INSTANCE_IDS[selectedIdx];
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
@@ -88,7 +101,7 @@ const VisualizadorSimple: React.FC = () => {
   }, []);
 
   const handleZoom = (factor: number) => {
-    setZoom((prev) => Math.max(0.1, Math.min(prev * factor, 5)));
+    setZoom((prev) => Math.max(1, Math.min(prev * factor, 5)));
   };
 
   const handleTalkback = () => {
@@ -132,22 +145,63 @@ const VisualizadorSimple: React.FC = () => {
       <Header />
       <div className="layout-content" style={{ margin: '2rem auto' }}>
         <div className="card" style={{ padding: '2rem' }}>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl m-0">Visualización de Imagen</h2>
-            <div className="flex items-center gap-2">
-              <a 
-                href={`http://localhost:8042/instances/${INSTANCE_ID}/preview`} 
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button
-                  label="Ver en Nueva Ventana"
-                  icon="pi pi-external-link"
-                  className="p-button-outlined"
-                />
-              </a>
-              <a 
-                href={`http://localhost:8042/instances/${INSTANCE_ID}/file`} 
+          {/* Layout principal: miniaturas a la izquierda, imagen grande a la derecha */}
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', alignItems: 'flex-start' }}>
+            {/* Barra de miniaturas vertical */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
+              {INSTANCE_IDS.map((id, idx) => (
+                <div
+                  key={id}
+                  onClick={() => setSelectedIdx(idx)}
+                  style={{
+                    border: idx === selectedIdx ? '2px solid #1976d2' : '1px solid #ccc',
+                    borderRadius: 8,
+                    padding: 2,
+                    cursor: 'pointer',
+                    background: idx === selectedIdx ? '#e3f2fd' : '#fff',
+                    boxShadow: idx === selectedIdx ? '0 0 8px #90caf9' : 'none',
+                    width: 60,
+                    height: 60,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'border 0.2s, box-shadow 0.2s',
+                  }}
+                  title={`Imagen ${idx + 1}`}
+                >
+                  <img
+                    src={`http://localhost:8042/instances/${id}/preview`}
+                    alt={`Miniatura DICOM ${idx + 1}`}
+                    style={{
+                      width: 52,
+                      height: 52,
+                      objectFit: 'cover',
+                      borderRadius: 6,
+                      opacity: idx === selectedIdx ? 1 : 0.7,
+                    }}
+                    draggable={false}
+                  />
+                </div>
+              ))}
+            </div>
+            {/* Contenedor de la imagen grande y controles */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl m-0">Visualización de Imagen</h2>
+                <div className="flex items-center gap-2">
+                  <a 
+                    href={`http://localhost:8042/instances/${INSTANCE_ID}/preview`} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      label="Ver en Nueva Ventana"
+                      icon="pi pi-external-link"
+                      className="p-button-outlined"
+                    />
+                  </a>
+                  <a 
+                    href={`http://localhost:8042/instances/${INSTANCE_ID}/file`} 
                 download="imagen.dcm"
               >
                 <Button
@@ -204,9 +258,22 @@ const VisualizadorSimple: React.FC = () => {
               {/* Controles de zoom y filtros */}
               <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 600 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Button icon="pi pi-search-minus" onClick={() => handleZoom(0.8)} className="p-button-sm" />
-                  <span style={{ minWidth: 60 }}>Zoom: {Math.round(zoom * 100)}%</span>
-                  <Button icon="pi pi-search-plus" onClick={() => handleZoom(1.2)} className="p-button-sm" />
+                  <Button icon="pi pi-search-minus" onClick={() => handleZoom(0.8)} className="p-button-sm" disabled={zoom <= 1} />
+                  <Button icon="pi pi-search-plus" onClick={() => handleZoom(1.2)} className="p-button-sm" disabled={zoom >= 5} />
+                  <Button 
+                    icon="pi pi-angle-left" 
+                    onClick={() => setSelectedIdx(selectedIdx - 1)} 
+                    className="p-button-rounded p-button-text" 
+                    disabled={selectedIdx === 0} 
+                    aria-label="Imagen anterior"
+                  />
+                  <Button 
+                    icon="pi pi-angle-right" 
+                    onClick={() => setSelectedIdx(selectedIdx + 1)} 
+                    className="p-button-rounded p-button-text" 
+                    disabled={selectedIdx === INSTANCE_IDS.length - 1} 
+                    aria-label="Imagen siguiente"
+                  />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span>Brillo</span>
@@ -261,6 +328,8 @@ const VisualizadorSimple: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+      </div>
       </div>
       <Footer />
     </div>
