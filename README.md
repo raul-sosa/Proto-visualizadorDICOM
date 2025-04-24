@@ -1,8 +1,5 @@
 # Proto-visualizadorDICOM
 
-![GitHub License](https://img.shields.io/github/license/raul-sosa/Proto-visualizadorDICOM)
-![GitHub Stars](https://img.shields.io/github/stars/raul-sosa/Proto-visualizadorDICOM)
-
 Un visualizador de imágenes médicas DICOM completo con capacidades de visualización simple y avanzada mediante la integración con OHIF Viewer y servidor Orthanc.
 
 <p align="center">
@@ -106,7 +103,6 @@ Proto-visualizadorDICOM/
 1. Navegue a [http://localhost:5173](http://localhost:5173) para acceder a la aplicación principal
 2. El sistema permite:
    - Visualizar imágenes DICOM en modo simple o avanzado
-   - Alternar entre ambos modos mediante un botón de cambio
    - Manipular imágenes con herramientas de ajuste profesionales
    
 ## Configuración Técnica
@@ -134,31 +130,3 @@ efebc324-9433a127-dadb8db9-d63025b2-81de68ff
 | OHIF Viewer no se conecta al servidor | Asegúrese de que Orthanc esté funcionando y accesible en http://localhost:8042 |
 | Imágenes no se muestran | Confirme que las imágenes DICOM están cargadas correctamente en Orthanc |
 | Error de compilación | Ejecute `npm install` en visor-medico y `yarn install` en ohif-viewer-local |
-
-## Desarrollo
-
-### Personalización del OHIF Viewer
-
-Para modificar la apariencia del OHIF Viewer:
-
-1. Crear una rama específica para cambios visuales:
-   ```bash
-   git checkout -b feature/customize-ohif
-   ```
-
-2. Los archivos principales para personalización son:
-   - `ohif-viewer-local/platform/ui/src/assets/styles/styles.css`
-   - `ohif-viewer-local/platform/app/public/config/default.js`
-   - `ohif-viewer-local/platform/ui/src/components/ThemeWrapper/ThemeWrapper.tsx`
-
-3. Para ver los cambios, reinicie el servidor OHIF:
-   ```bash
-   cd ohif-viewer-local
-   yarn dev:fast
-   ```
-
-## Contacto y Soporte
-
-Si encuentra problemas o tiene preguntas, por favor:
-1. Abra un issue en el [repositorio GitHub](https://github.com/raul-sosa/Proto-visualizadorDICOM/issues)
-2. Proporcione detalles sobre su entorno y los pasos para reproducir el problema
