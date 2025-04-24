@@ -66,7 +66,7 @@ export default function HomePage() {
                 padding: '1rem',
                 borderRadius: '50%'
               }}></i>
-              <h3>Prueba de Visualización</h3>
+              <h3>Visualizador</h3>
               <p className="text-secondary">
                 Acceso rápido a la vista de prueba de imágenes DICOM.
               </p>
