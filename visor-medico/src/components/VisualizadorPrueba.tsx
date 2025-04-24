@@ -23,7 +23,7 @@ const selectedStudyUID = DEFAULT_INSTANCE_ID;
     <Header />
     <div style={{ flex: 1, height: 'calc(100vh - 64px - 40px)', width: '100vw', overflow: 'hidden', display: 'flex' }}>
       <iframe
-        src={ohifUrl(selectedStudyUID)}
+        src="http://localhost:3000/viewer?StudyInstanceUIDs=2.16.840.1.114362.1.11972228.22789312658.616067305.306.2"
         title="OHIF Viewer"
         width="100%"
         height="100%"
