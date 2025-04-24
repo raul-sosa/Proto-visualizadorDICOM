@@ -1,107 +1,270 @@
-import React, { useEffect, useRef } from "react";
-import * as cornerstone from "@cornerstonejs/core";
-import {
-  ToolGroupManager,
-  Enums as csToolsEnums,
-  ZoomTool,
-  WindowLevelTool,
-  PanTool,
-  init as csToolsInit,
-  addTool,
-} from "@cornerstonejs/tools";
-import { init as initLoader } from "@cornerstonejs/dicom-image-loader";
+
+import React, { useRef, useState, useEffect } from 'react';
+import { Button } from 'primereact/button';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Slider } from 'primereact/slider';
 import Header from './Header';
 import Footer from './Footer';
 
-interface DicomViewerProps {
-  instanceId: string;
-}
+const INSTANCE_ID = 'efebc324-9433a127-dadb8db9-d63025b2-81de68ff';
 
-export default function DicomViewer({ instanceId }: DicomViewerProps) {
-  const elementRef = useRef<HTMLDivElement>(null);
+const LOCAL_COMMENTS_KEY = `comments_${INSTANCE_ID}`;
+
+const VisualizadorSimple: React.FC = () => {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1);
+  const [brightness, setBrightness] = useState(100);
+  const [contrast, setContrast] = useState(100);
+  const [comments, setComments] = useState<string[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  // Estados para pan
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
+
+  // Eventos de pan
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    setDragging(true);
+    setLastPos({ x: e.clientX, y: e.clientY });
+    // Evita seleccionar texto
+    document.body.style.userSelect = 'none';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragging || zoom <= 1) return;
+    const dx = e.clientX - lastPos.x;
+    const dy = e.clientY - lastPos.y;
+    setLastPos({ x: e.clientX, y: e.clientY });
+    setPan(prev => {
+      // Limita el pan para no salir de la imagen
+      const container = containerRef.current;
+      const img = imgRef.current;
+      if (!container || !img) return prev;
+      const containerRect = container.getBoundingClientRect();
+      const imgRect = img.getBoundingClientRect();
+      // Tamaño visible
+      const maxPanX = ((zoom - 1) * containerRect.width) / 2;
+      const maxPanY = ((zoom - 1) * containerRect.height) / 2;
+      let newX = prev.x + dx;
+      let newY = prev.y + dy;
+      newX = Math.max(-maxPanX, Math.min(maxPanX, newX));
+      newY = Math.max(-maxPanY, Math.min(maxPanY, newY));
+      return { x: newX, y: newY };
+    });
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+    document.body.style.userSelect = '';
+  };
+
+  // Reset pan al cambiar zoom
+  useEffect(() => {
+    setPan({ x: 0, y: 0 });
+  }, [zoom]);
+
+  // Cargar comentarios de localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(LOCAL_COMMENTS_KEY);
+    if (stored) setComments(JSON.parse(stored));
+  }, []);
+
+  // Guardar comentarios en localStorage
+  useEffect(() => {
+    localStorage.setItem(LOCAL_COMMENTS_KEY, JSON.stringify(comments));
+  }, [comments]);
 
   useEffect(() => {
-    const initCornerstone = async () => {
-      const element = elementRef.current;
-      if (!element) return;
-
-      try {
-        // Inicializar Cornerstone
-        await cornerstone.init();
-        await csToolsInit();
-        await initLoader();
-
-        // Registrar las herramientas globalmente
-        addTool(ZoomTool);
-        addTool(WindowLevelTool);
-        addTool(PanTool);
-
-        // Crear el viewport
-        const renderingEngineId = "myRenderingEngine";
-        const viewportId = "CT_AXIAL_STACK";
-        const renderingEngine = new cornerstone.RenderingEngine(renderingEngineId);
-
-        const viewportInput = {
-          viewportId,
-          element,
-          type: cornerstone.Enums.ViewportType.STACK,
-          defaultOptions: {
-            background: [0, 0, 0] as [number, number, number],
-            orientation: cornerstone.Enums.OrientationAxis.AXIAL,
-          },
-        };
-
-        renderingEngine.enableElement(viewportInput);
-        const viewport = renderingEngine.getViewport(viewportId) as cornerstone.Types.IStackViewport;
-
-        // Configurar herramientas
-        const toolGroupId = "myToolGroup";
-        const existingToolGroup = ToolGroupManager.getToolGroup(toolGroupId);
-        if (existingToolGroup) {
-          ToolGroupManager.destroyToolGroup(toolGroupId);
-        }
-        const toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
-        if (toolGroup) {
-          toolGroup.addTool(ZoomTool.toolName);
-          toolGroup.addTool(WindowLevelTool.toolName);
-          toolGroup.addTool(PanTool.toolName);
-          toolGroup.setToolActive(ZoomTool.toolName, {
-            bindings: [{ mouseButton: csToolsEnums.MouseBindings.Secondary }],
-          });
-          toolGroup.setToolActive(WindowLevelTool.toolName, {
-            bindings: [{ mouseButton: csToolsEnums.MouseBindings.Primary }],
-          });
-          toolGroup.setToolActive(PanTool.toolName, {
-            bindings: [{ mouseButton: csToolsEnums.MouseBindings.Auxiliary }],
-          });
-          toolGroup.addViewport(viewportId, renderingEngineId);
-        }
-
-        // Cargar imagen seleccionada
-        const imageIds = [
-          `wadouri:http://localhost:8042/instances/${instanceId}/file`
-        ];
-        await viewport.setStack(imageIds, 0);
-        renderingEngine.render();
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error("Error al inicializar el visualizador DICOM:", error);
-      }
+    if (!('speechSynthesis' in window)) return;
+    const handleEnd = () => setIsSpeaking(false);
+    window.speechSynthesis.addEventListener('end', handleEnd);
+    window.speechSynthesis.addEventListener('voiceschanged', () => {});
+    return () => {
+      window.speechSynthesis.removeEventListener('end', handleEnd);
     };
-    initCornerstone();
-  }, [instanceId]);
+  }, []);
+
+  const handleZoom = (factor: number) => {
+    setZoom((prev) => Math.max(0.1, Math.min(prev * factor, 5)));
+  };
+
+  const handleTalkback = () => {
+    const text =
+      'Tipo: Resonancia Magnética. Paciente: Juan Pérez. Edad: 42 años. Fecha: 2023-10-01. Descripción: Estudio de cerebro.';
+    if ('speechSynthesis' in window) {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+      const utterance = new window.SpeechSynthesisUtterance(text);
+      utterance.onend = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+      setIsSpeaking(true);
+    } else {
+      alert('Tu navegador no soporta síntesis de voz.');
+    }
+  };
+
+  const handlePauseTalkback = () => {
+    if ('speechSynthesis' in window) {
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+        window.speechSynthesis.pause();
+        setIsSpeaking(false);
+      } else if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+        setIsSpeaking(true);
+      }
+    }
+  };
+
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      setComments([...comments, newComment.trim()]);
+      setNewComment('');
+    }
+  };
 
   return (
     <div className="layout-wrapper">
       <Header />
-      <div style={{ padding: '32px 0 0 0', textAlign: 'center', maxWidth: 900, margin: '0 auto' }}>
-        <h1 style={{ fontSize: 28, margin: '24px 0 10px 0', fontWeight: 900, letterSpacing: -1 }}>Visualizador DICOM</h1>
-        <p style={{ fontSize: 18, margin: '0 0 24px 0', color: '#555' }}>
-          Aquí puedes cargar y visualizar tus imágenes médicas.
-        </p>
-        <div ref={elementRef} style={{ width: 640, height: 480, margin: '0 auto', background: '#111', borderRadius: 8, border: '1px solid #222' }} />
+      <div className="layout-content" style={{ margin: '2rem auto' }}>
+        <div className="card" style={{ padding: '2rem' }}>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl m-0">Visualización de Imagen</h2>
+            <div className="flex items-center gap-2">
+              <a 
+                href={`http://localhost:8042/instances/${INSTANCE_ID}/preview`} 
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button
+                  label="Ver en Nueva Ventana"
+                  icon="pi pi-external-link"
+                  className="p-button-outlined"
+                />
+              </a>
+              <a 
+                href={`http://localhost:8042/instances/${INSTANCE_ID}/file`} 
+                download="imagen.dcm"
+              >
+                <Button
+                  label="Descargar DICOM"
+                  icon="pi pi-download"
+                  className="p-button-outlined"
+                />
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-row" style={{ gap: '2rem', alignItems: 'flex-start' }}>
+            {/* Imagen DICOM */}
+            <div style={{ flex: '3 1 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div
+                ref={containerRef}
+                style={{
+                  border: '1px solid var(--surface-200)',
+                  borderRadius: 'var(--border-radius)',
+                  padding: '1rem',
+                  backgroundColor: 'var(--surface-50)',
+                  width: '100% ',
+                  maxWidth: 600,
+                  minHeight: 400,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  cursor: zoom > 1 ? (dragging ? 'grabbing' : 'grab') : 'default',
+                  userSelect: 'none',
+                }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <img
+                  ref={imgRef}
+                  src={`http://localhost:8042/instances/${INSTANCE_ID}/preview`}
+                  alt="Imagen DICOM"
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    filter: `brightness(${brightness}%) contrast(${contrast}%)`,
+                    transition: dragging ? 'none' : 'all 0.2s',
+                    transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+                    transformOrigin: 'center',
+                    display: 'block',
+                    cursor: zoom > 1 ? (dragging ? 'grabbing' : 'grab') : 'default',
+                  }}
+                  draggable={false}
+                  onError={e => { (e.target as HTMLImageElement).src = '/no-image.png'; }}
+                />
+              </div>
+              {/* Controles de zoom y filtros */}
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 600 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Button icon="pi pi-search-minus" onClick={() => handleZoom(0.8)} className="p-button-sm" />
+                  <span style={{ minWidth: 60 }}>Zoom: {Math.round(zoom * 100)}%</span>
+                  <Button icon="pi pi-search-plus" onClick={() => handleZoom(1.2)} className="p-button-sm" />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>Brillo</span>
+                  <Slider value={brightness} onChange={(e) => setBrightness(e.value as number)} min={50} max={200} style={{ width: 120 }} />
+                  <span>{brightness}%</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>Contraste</span>
+                  <Slider value={contrast} onChange={(e) => setContrast(e.value as number)} min={50} max={200} style={{ width: 120 }} />
+                  <span>{contrast}%</span>
+                </div>
+              </div>
+            </div>
+            {/* Panel lateral de información y comentarios */}
+            <div style={{ flex: '2 1 0', minWidth: 320 }}>
+              <div style={{ marginBottom: 24 }}>
+                <h3 className="m-0">Características del Estudio</h3>
+                <div style={{ margin: '1rem 0', fontSize: 16 }}>
+                  <div><span style={{ color: 'var(--text-color-secondary)' }}>Tipo: </span>Resonancia Magnética (MR)</div>
+                  <div><span style={{ color: 'var(--text-color-secondary)' }}>Paciente: </span>Juan Pérez</div>
+                  <div><span style={{ color: 'var(--text-color-secondary)' }}>Edad: </span>42 años</div>
+                  <div><span style={{ color: 'var(--text-color-secondary)' }}>Fecha: </span>2023-10-01</div>
+                  <div><span style={{ color: 'var(--text-color-secondary)' }}>Descripción: </span>Estudio de cerebro</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Button icon="pi pi-volume-up" label={isSpeaking ? "Reproducir de nuevo" : "Leer datos"} onClick={handleTalkback} className="p-button-text" />
+                  <Button icon={window.speechSynthesis && window.speechSynthesis.paused ? "pi pi-play" : "pi pi-pause"} label={window.speechSynthesis && window.speechSynthesis.paused ? "Reanudar" : "Pausar"} onClick={handlePauseTalkback} className="p-button-text" disabled={!isSpeaking && !(window.speechSynthesis && window.speechSynthesis.paused)} />
+                </div>
+              </div>
+              <div>
+                <h3 className="m-0">Comentarios del Médico</h3>
+                <div style={{ margin: '1rem 0', maxHeight: 120, overflowY: 'auto', background: '#f4f4f4', padding: 8, borderRadius: 8, border: '1px solid #ddd' }}>
+                  {comments.length === 0 && <span style={{ color: '#888' }}>No hay comentarios aún.</span>}
+                  {comments.map((c, i) => (
+                    <div key={i} style={{ marginBottom: 8, paddingBottom: 6, borderBottom: '1px solid #eee' }}>
+                      <span style={{ color: '#222' }}>{c}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <InputTextarea
+                    value={newComment}
+                    onChange={e => setNewComment(e.target.value)}
+                    rows={2}
+                    autoResize
+                    placeholder="Escribe un comentario..."
+                    style={{ flex: 1 }}
+                  />
+                  <Button icon="pi pi-send" onClick={handleAddComment} disabled={!newComment.trim()} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <Footer />
     </div>
   );
-}
+};
+
+export default VisualizadorSimple;

@@ -52,7 +52,7 @@ export default function HomePage() {
                 label="Abrir Visualizador"
                 icon="pi pi-arrow-right"
                 className="p-button"
-                onClick={() => navigate('/viewer')}
+                onClick={() => navigate('/prueba')}
               />
             </div>
           </Card>
@@ -74,7 +74,7 @@ export default function HomePage() {
                 label="Vista de Prueba"
                 icon="pi pi-eye"
                 className="p-button"
-                onClick={() => navigate('/prueba')}
+                onClick={() => navigate('/viewer')}
               />
             </div>
           </Card>
