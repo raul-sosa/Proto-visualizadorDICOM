@@ -2,9 +2,7 @@
 
 Un visualizador de imágenes médicas DICOM completo con capacidades de visualización simple y avanzada mediante la integración con OHIF Viewer y servidor Orthanc.
 
-<p align="center">
-  <img src="https://ohif.org/img/logo.svg" alt="OHIF Viewer Logo" width="180"/>
-</p>
+
 
 ## Características
 
